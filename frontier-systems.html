@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stanford CS153 Frontier Systems - Lecture Notes</title>
+  <meta name="description" content="Original summaries of the public Stanford CS153 Frontier Systems lectures, with links back to the official YouTube videos.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #151515;
+      --muted: #5f6368;
+      --line: #ded8cf;
+      --paper: #fffdf8;
+      --panel: #ffffff;
+      --coal: #202124;
+      --red: #b6292f;
+      --green: #2b6b56;
+      --gold: #b88419;
+      --cyan: #0c6b83;
+      --shadow: 0 18px 42px rgba(18, 18, 18, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 56px;
+      padding: 0 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(20, 20, 20, 0.84);
+      color: #fff;
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .nav {
+      display: flex;
+      gap: 16px;
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .nav a {
+      text-decoration: none;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 78vh;
+      display: grid;
+      align-items: end;
+      background-image: url("https://i.ytimg.com/vi/O5PfU_uDhS0/maxresdefault.jpg");
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: rgba(0, 0, 0, 0.58);
+    }
+
+    .hero-inner {
+      width: min(1160px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 84px 0 64px;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 0.86rem;
+      font-weight: 740;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      max-width: 840px;
+      margin: 0;
+      font-size: clamp(2.75rem, 8vw, 6.8rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 740px;
+      margin: 22px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: clamp(1rem, 2.1vw, 1.22rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 6px;
+      background: #fff;
+      color: #111;
+      font-weight: 730;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.11);
+      color: #fff;
+    }
+
+    main {
+      width: min(1160px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    section {
+      padding: 58px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.28rem;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .lead {
+      max-width: 760px;
+      color: #333;
+      font-size: 1.1rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 96px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .map-item {
+      min-height: 128px;
+      padding: 16px;
+      border-radius: 8px;
+      color: #fff;
+    }
+
+    .map-item:nth-child(1) {
+      background: var(--red);
+    }
+
+    .map-item:nth-child(2) {
+      background: var(--green);
+    }
+
+    .map-item:nth-child(3) {
+      background: var(--cyan);
+    }
+
+    .map-item:nth-child(4) {
+      background: var(--gold);
+    }
+
+    .map-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .map-item span {
+      display: block;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 0.92rem;
+    }
+
+    .source-note {
+      margin-top: 28px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--red);
+      background: #fff;
+      color: #333;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    }
+
+    .lecture-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .lecture {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 22px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 24px rgba(18, 18, 18, 0.07);
+    }
+
+    .thumb {
+      position: relative;
+      min-height: 100%;
+      background: #111;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      min-height: 210px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .badge {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .lecture-body {
+      padding: 20px 22px 22px 0;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .meta span {
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfaf7;
+    }
+
+    .summary {
+      margin-bottom: 14px;
+      color: #2c2c2c;
+    }
+
+    .takeaways {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 16px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .takeaways li {
+      position: relative;
+      padding-left: 18px;
+      color: #303236;
+    }
+
+    .takeaways li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.66em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .watch {
+      color: var(--red);
+      font-weight: 760;
+      text-decoration: none;
+    }
+
+    .watch:hover {
+      text-decoration: underline;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .theme {
+      min-height: 150px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .theme strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--green);
+      font-size: 1.05rem;
+    }
+
+    .sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--coal);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    footer {
+      width: min(1160px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        position: static;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px 18px;
+      }
+
+      .nav {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .hero {
+        min-height: 74vh;
+      }
+
+      .intro-grid,
+      .lecture,
+      .theme-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lecture-body {
+        padding: 0 18px 20px;
+      }
+
+      .thumb img {
+        aspect-ratio: 16 / 9;
+        min-height: auto;
+      }
+
+      .map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      main,
+      footer,
+      .hero-inner {
+        width: min(100% - 24px, 1160px);
+      }
+
+      .hero-actions,
+      .stats,
+      .map {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .stats,
+      .map {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" aria-label="Page navigation">
+    <div class="brand">CS153 Frontier Systems</div>
+    <nav class="nav">
+      <a href="#overview">Overview</a>
+      <a href="#lectures">Lecture Notes</a>
+      <a href="#patterns">Patterns</a>
+      <a href="/">Home</a>
+    </nav>
+  </header>
+
+  <section class="hero" aria-label="CS153 Frontier Systems">
+    <div class="hero-inner">
+      <p class="eyebrow">Stanford University - Spring 2026</p>
+      <h1>Frontier Systems lecture notes</h1>
+      <p class="hero-copy">A compact guide to the public CS153 talks on compute, energy, models, applications, venture systems, product, security, and governance.</p>
+      <div class="hero-actions">
+        <a class="button" href="#lectures">Read the summaries</a>
+        <a class="button secondary" href="https://www.youtube.com/playlist?list=PLoROMvodv4rN447WKQ5oz_YdYbS74M5IA" rel="noopener" target="_blank">Open playlist</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="overview">
+      <div class="intro-grid">
+        <div>
+          <h2>Course Overview</h2>
+          <p class="lead">CS153 frames frontier AI as a full-stack systems problem. The public lectures move from GPUs, data centers, energy, and nuclear fuel into multimodal models, AI-native companies, product practice, venture capital, and security leadership.</p>
+          <div class="source-note">These notes are original summaries based on the public YouTube captions, video metadata, and the official CS153 course page. Full videos and transcripts are not mirrored here; each lecture links back to YouTube.</div>
+        </div>
+        <div class="stats" aria-label="Summary stats">
+          <div class="stat">
+            <strong>11</strong>
+            <span>public lectures summarized</span>
+          </div>
+          <div class="stat">
+            <strong>11h</strong>
+            <span>approximate video runtime</span>
+          </div>
+          <div class="stat">
+            <strong>1</strong>
+            <span>private playlist entry not accessible</span>
+          </div>
+          <div class="stat">
+            <strong>2026</strong>
+            <span>Spring quarter course</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="map" aria-label="Course map">
+        <div class="map-item">
+          <strong>Compute and Power</strong>
+          <span>GPUs, TPUs, networks, nuclear fuel, data centers, and value per watt.</span>
+        </div>
+        <div class="map-item">
+          <strong>Models and Media</strong>
+          <span>Voice, image, video, multimodal architectures, open weights, and feedback loops.</span>
+        </div>
+        <div class="map-item">
+          <strong>Companies and Capital</strong>
+          <span>AI-native teams, YC, a16z, product cycles, and founder leverage.</span>
+        </div>
+        <div class="map-item">
+          <strong>Security and Policy</strong>
+          <span>Transparency, operational resilience, regulation, and incident leadership.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="lectures">
+      <h2>Lecture Notes</h2>
+      <div class="lecture-list">
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=O5PfU_uDhS0" rel="noopener" target="_blank" aria-label="Watch Anjney Midha lecture">
+            <span class="badge">Lecture 1</span>
+            <img src="https://i.ytimg.com/vi/O5PfU_uDhS0/hqdefault.jpg" alt="Anjney Midha lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Anjney Midha - Frontier Systems</h3>
+            <div class="meta"><span>Apr 30, 2026</span><span>1:05:55</span><span>AMP PBC</span></div>
+            <p class="summary">Midha opens the course by treating frontier AI as an industrial stack rather than a model-only story. He links capital, data centers, chips, clouds, models, apps, governance, and personal networks into one system that determines where value and bottlenecks appear.</p>
+            <ul class="takeaways">
+              <li>AI progress increasingly depends on context, verifiable feedback, and continuous post-training rather than static pretraining alone.</li>
+              <li>Compute is strategic infrastructure: GPU availability, utilization, and non-fungible supply chains shape who can build frontier systems.</li>
+              <li>The course project theme is leverage: one person with the right tools can now produce work that previously required a larger organization.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=O5PfU_uDhS0" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=vfF011ko89o" rel="noopener" target="_blank" aria-label="Watch Mati Staniszewski lecture">
+            <span class="badge">Lecture 2</span>
+            <img src="https://i.ytimg.com/vi/vfF011ko89o/hqdefault.jpg" alt="Mati Staniszewski lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Mati Staniszewski - The Future of Voice Systems</h3>
+            <div class="meta"><span>May 4, 2026</span><span>1:06:26</span><span>ElevenLabs</span></div>
+            <p class="summary">Staniszewski explains how ElevenLabs grew from text-to-speech and dubbing into a broader audio platform. The core shift is from pipeline-style speech products toward real-time voice agents that can understand emotion, preserve identity, and work across consumer and enterprise settings.</p>
+            <ul class="takeaways">
+              <li>Voice systems are moving from cascaded transcription, translation, and synthesis steps toward fused multimodal interaction.</li>
+              <li>Naturalness is not just pronunciation; emotion, timing, speaker identity, latency, and safety controls all matter.</li>
+              <li>The business lesson is to combine product-led growth with enterprise deployment, pricing around customer value instead of raw usage.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=vfF011ko89o" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=CBaLU0dDEY8" rel="noopener" target="_blank" aria-label="Watch Andreas Blattmann lecture">
+            <span class="badge">Lecture 3</span>
+            <img src="https://i.ytimg.com/vi/CBaLU0dDEY8/hqdefault.jpg" alt="Andreas Blattmann lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Andreas Blattmann - Visual Intelligence</h3>
+            <div class="meta"><span>May 4, 2026</span><span>1:01:14</span><span>Black Forest Labs</span></div>
+            <p class="summary">Blattmann traces the path from latent diffusion and Stable Diffusion to Black Forest Labs and FLUX. The lecture focuses on the factory around visual models: pretraining, mid-training, post-training, distillation, customer feedback, safety systems, and the move toward multimodal agents that observe and act.</p>
+            <ul class="takeaways">
+              <li>Latent diffusion made high-quality image generation practical by moving expensive pixel work into a compressed representation.</li>
+              <li>Open weights can be a product advantage when customers need customization, inspection, or domain-specific controls.</li>
+              <li>Visual intelligence is expanding from image generation to consistent editing, video, audio, computer use, and robotics.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=CBaLU0dDEY8" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=6nUl_w5W9Wk" rel="noopener" target="_blank" aria-label="Watch Amit Jain lecture">
+            <span class="badge">Lecture 4</span>
+            <img src="https://i.ytimg.com/vi/6nUl_w5W9Wk/hqdefault.jpg" alt="Amit Jain lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Amit Jain - Unified Intelligence Systems</h3>
+            <div class="meta"><span>May 6, 2026</span><span>57:41</span><span>Luma AI</span></div>
+            <p class="summary">Jain uses Luma's evolution from 3D capture to generative video as a case study in multimodal product strategy. The long-term bet is a unified model stack that reasons across text, image, video, and audio while serving both creative exploration and professional workflows.</p>
+            <ul class="takeaways">
+              <li>Generative video gained from internet-scale data and tight user feedback loops more than from a narrow 3D capture wedge alone.</li>
+              <li>The AI factory includes pretraining, post-training, deployment, preference data, human annotation, and security constraints for studios.</li>
+              <li>Unified architectures aim to remove handoffs between media tools so creators can iterate through one system.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=6nUl_w5W9Wk" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=BQrJ4lHAjhc" rel="noopener" target="_blank" aria-label="Watch Nikhyl Singhal lecture">
+            <span class="badge">Lecture 5</span>
+            <img src="https://i.ytimg.com/vi/BQrJ4lHAjhc/hqdefault.jpg" alt="Nikhyl Singhal lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Nikhyl Singhal - Product Management in the AI Era</h3>
+            <div class="meta"><span>May 7, 2026</span><span>1:03:14</span><span>Skip</span></div>
+            <p class="summary">Singhal reframes product work around company stage and builder judgment. AI compresses the distance between product, design, and engineering, reducing the value of coordination-only roles while increasing the value of people who can identify customer pain and ship working systems.</p>
+            <ul class="takeaways">
+              <li>Product skills change by phase: discovery, process after product-market fit, hypergrowth, and reinvention require different muscles.</li>
+              <li>AI makes hands-on product builders more valuable because prototyping and iteration loops get cheaper and faster.</li>
+              <li>The durable PM skill is judgment: choosing the real customer problem and navigating tradeoffs under ambiguity.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=BQrJ4lHAjhc" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=B8NvdfssGac" rel="noopener" target="_blank" aria-label="Watch Ben Horowitz lecture">
+            <span class="badge">Lecture 6</span>
+            <img src="https://i.ytimg.com/vi/B8NvdfssGac/hqdefault.jpg" alt="Ben Horowitz lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Ben Horowitz - Venture Capital Systems and Network Effects</h3>
+            <div class="meta"><span>May 11, 2026</span><span>1:06:17</span><span>a16z</span></div>
+            <p class="summary">Horowitz describes a16z as a systems redesign of venture capital: a product for entrepreneurs built around central coordination, shared economics, operating support, and dense networks. The AI angle is that compute, capital, power, and policy now affect company moats directly.</p>
+            <ul class="takeaways">
+              <li>VC firms can compound through network effects when relationships, expertise, customers, and recruiting become shared infrastructure.</li>
+              <li>Culture is operational behavior under pressure, not slogans; decisive leadership matters when systems need to change.</li>
+              <li>In AI, electricity and compute can be first-order strategy questions alongside product and distribution.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=B8NvdfssGac" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=wisccQYTRQc" rel="noopener" target="_blank" aria-label="Watch Scott Nolan lecture">
+            <span class="badge">Lecture 7</span>
+            <img src="https://i.ytimg.com/vi/wisccQYTRQc/hqdefault.jpg" alt="Scott Nolan lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Scott Nolan - Energy Bottlenecks</h3>
+            <div class="meta"><span>May 12, 2026</span><span>1:00:27</span><span>General Matter</span></div>
+            <p class="summary">Nolan argues that AI data center growth turns energy into a frontier systems bottleneck. The lecture centers on baseload power, nuclear's strategic role, turbine shortages, uranium enrichment, and why reshoring fuel production matters for U.S. compute growth.</p>
+            <ul class="takeaways">
+              <li>For hyperscale AI, power is not a utility afterthought; it can determine where compute can be built at all.</li>
+              <li>Nuclear is attractive because uptime, carbon profile, safety record, and density match large data center needs.</li>
+              <li>The fuel supply chain matters as much as reactors; enrichment capacity is a geopolitical and industrial constraint.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=wisccQYTRQc" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=tsQB0n0YV3k" rel="noopener" target="_blank" aria-label="Watch Jensen Huang lecture">
+            <span class="badge">Lecture 8</span>
+            <img src="https://i.ytimg.com/vi/tsQB0n0YV3k/hqdefault.jpg" alt="Jensen Huang lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Jensen Huang - The Compute Behind Intelligence</h3>
+            <div class="meta"><span>May 13, 2026</span><span>1:08:24</span><span>NVIDIA</span></div>
+            <p class="summary">Huang presents AI computing as a full-system reinvention: chips, interconnects, compilers, racks, networks, and software co-designed for generated intelligence. He emphasizes tokens per watt, real workloads, and the need for open models and energy investment.</p>
+            <ul class="takeaways">
+              <li>The workload shifted from running prerecorded software to generating answers, media, and agentic actions in real time.</li>
+              <li>Useful metrics must connect to delivered intelligence, not just theoretical flops or model utilization percentages.</li>
+              <li>Future generations of systems are designed around inference, agents, and large coordinated swarms, not only pretraining.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=tsQB0n0YV3k" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=Lri2LNYtERM" rel="noopener" target="_blank" aria-label="Watch Garry Tan and Diana Hu lecture">
+            <span class="badge">Lecture 9</span>
+            <img src="https://i.ytimg.com/vi/Lri2LNYtERM/hqdefault.jpg" alt="AI Native Company lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Garry Tan and Diana Hu - The AI Native Company</h3>
+            <div class="meta"><span>May 20, 2026</span><span>47:14</span><span>Y Combinator</span></div>
+            <p class="summary">Tan and Hu argue that agentic coding changes the unit economics of company formation. Skills, resolvers, evals, memory, and audits become primitives for AI-native organizations where one or two founders can operate with the leverage of a much larger team.</p>
+            <ul class="takeaways">
+              <li>The SAFE standardized startup finance; AI agents may similarly standardize pieces of company operations.</li>
+              <li>Agentic coding lets founders rebuild and test products quickly, but durable advantage still needs evals, workflows, and memory.</li>
+              <li>High revenue per employee becomes plausible when software agents absorb repetitive execution and coordination.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=Lri2LNYtERM" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=VeTqsCpcDgg" rel="noopener" target="_blank" aria-label="Watch Amin Vahdat lecture">
+            <span class="badge">Lecture 10</span>
+            <img src="https://i.ytimg.com/vi/VeTqsCpcDgg/hqdefault.jpg" alt="Amin Vahdat lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Amin Vahdat - Delivering Value per Gigawatt</h3>
+            <div class="meta"><span>May 27, 2026</span><span>1:04:22</span><span>Google</span></div>
+            <p class="summary">Vahdat pushes the class to judge infrastructure by delivered value rather than raw gigawatts or flops. He covers reliability, system balance, long procurement cycles, optical circuit switching, and the engineering discipline required to run planetary-scale TPU supercomputers.</p>
+            <ul class="takeaways">
+              <li>A gigawatt-scale data center is a financial and operational bet measured in useful products, users, and enterprise demand.</li>
+              <li>Large synchronous training jobs make reliability and balance central because a single weak subsystem can stall the whole run.</li>
+              <li>Lead times for land, power contracts, utilities, and hardware mean AI infrastructure strategy must be planned years ahead.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=VeTqsCpcDgg" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+
+        <article class="lecture">
+          <a class="thumb" href="https://www.youtube.com/watch?v=g50FHC-PzK8" rel="noopener" target="_blank" aria-label="Watch Joe Sullivan lecture">
+            <span class="badge">Lecture 11</span>
+            <img src="https://i.ytimg.com/vi/g50FHC-PzK8/hqdefault.jpg" alt="Joe Sullivan lecture thumbnail" loading="lazy">
+          </a>
+          <div class="lecture-body">
+            <h3>Joe Sullivan - The Road Ahead: Resilience Required</h3>
+            <div class="meta"><span>May 28, 2026</span><span>1:05:18</span><span>Security leadership</span></div>
+            <p class="summary">Sullivan uses his career across government, eBay/PayPal, Facebook, Uber, and Cloudflare to explain why security leadership now demands resilience, transparency, and careful judgment. His Uber prosecution becomes a case study in incident response, accountability, and how legal expectations can shift around technical events.</p>
+            <ul class="takeaways">
+              <li>Security teams need reflexes for disclosure, documentation, and cross-functional escalation before a crisis hardens into a legal story.</li>
+              <li>Modern risk has moved from simple data loss toward operational resilience, platform trust, and AI-amplified attack surfaces.</li>
+              <li>Leadership requires surviving ambiguity while keeping the organization honest about what happened and what it will change.</li>
+            </ul>
+            <a class="watch" href="https://www.youtube.com/watch?v=g50FHC-PzK8" rel="noopener" target="_blank">Watch on YouTube</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="patterns">
+      <h2>Cross-Lecture Patterns</h2>
+      <div class="theme-grid">
+        <div class="theme">
+          <strong>The stack is physical.</strong>
+          <p>Frontier AI depends on electricity, supply chains, chips, networks, data centers, cooling, power contracts, fuel, and capital allocation.</p>
+        </div>
+        <div class="theme">
+          <strong>Feedback loops are the product.</strong>
+          <p>The best systems learn from usage, preference data, evals, human review, incident reports, and customer workflows after launch.</p>
+        </div>
+        <div class="theme">
+          <strong>Leverage shifts roles.</strong>
+          <p>AI compresses design, engineering, product, and operations, rewarding builders who can combine judgment with implementation.</p>
+        </div>
+        <div class="theme">
+          <strong>Metrics need grounding.</strong>
+          <p>Tokens per watt, value per gigawatt, revenue per employee, real evals, and happy users are more useful than vanity capacity measures.</p>
+        </div>
+        <div class="theme">
+          <strong>Systems need governance.</strong>
+          <p>Safety, transparency, disclosure, authentication, compliance, and policy are not add-ons. They shape deployability and trust.</p>
+        </div>
+        <div class="theme">
+          <strong>Institutions lag technology.</strong>
+          <p>Compute markets, energy regulation, legal frameworks, venture structures, and product organizations are still adapting to AI's pace.</p>
+        </div>
+      </div>
+
+      <div class="sources">
+        <a class="source-link" href="https://cs153.stanford.edu/" rel="noopener" target="_blank">Official course page</a>
+        <a class="source-link" href="https://www.youtube.com/playlist?list=PLoROMvodv4rN447WKQ5oz_YdYbS74M5IA" rel="noopener" target="_blank">YouTube playlist</a>
+        <a class="source-link" href="https://www.youtube.com/@stanfordonline" rel="noopener" target="_blank">Stanford Online</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Last updated June 15, 2026. One private playlist entry was visible in the playlist metadata but was not accessible for summarization.</p>
+  </footer>
+</body>
+</html>
