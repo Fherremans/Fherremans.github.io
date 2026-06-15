@@ -372,6 +372,60 @@
       text-decoration: underline;
     }
 
+    .technical {
+      margin: 16px 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfaf7;
+    }
+
+    .technical summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+      padding: 0 14px;
+      color: var(--coal);
+      cursor: pointer;
+      font-weight: 760;
+      list-style: none;
+    }
+
+    .technical summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .technical summary::after {
+      content: "+";
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--coal);
+      color: #fff;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .technical[open] summary::after {
+      content: "-";
+    }
+
+    .technical-body {
+      display: grid;
+      gap: 12px;
+      padding: 0 14px 15px;
+      color: #303236;
+      font-size: 0.96rem;
+    }
+
+    .technical-body strong {
+      color: var(--green);
+    }
+
     .theme-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -513,7 +567,7 @@
         <div>
           <h2>Course Overview</h2>
           <p class="lead">CS153 frames frontier AI as a full-stack systems problem. The public lectures move from GPUs, data centers, energy, and nuclear fuel into multimodal models, AI-native companies, product practice, venture capital, and security leadership.</p>
-          <div class="source-note">These notes are original summaries based on the public YouTube captions, video metadata, and the official CS153 course page. Full videos and transcripts are not mirrored here; each lecture links back to YouTube.</div>
+          <div class="source-note">These notes are original summaries based on the public YouTube captions, video metadata, and the official CS153 course page. Full videos and transcripts are not mirrored here; each lecture links back to YouTube. Open any lecture's technical summary for a deeper pass.</div>
         </div>
         <div class="stats" aria-label="Summary stats">
           <div class="stat">
@@ -572,6 +626,14 @@
               <li>Compute is strategic infrastructure: GPU availability, utilization, and non-fungible supply chains shape who can build frontier systems.</li>
               <li>The course project theme is leverage: one person with the right tools can now produce work that previously required a larger organization.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>System frame:</strong> Midha decomposes frontier AI into coupled layers: power procurement, data center construction, accelerators, cloud allocation, model training, post-training, application distribution, and governance. The useful unit is not a model checkpoint in isolation, but the feedback loop that can turn user context into measurable improvement.</p>
+                <p><strong>Technical tension:</strong> He treats compute as non-fungible because GPUs differ by generation, location, network topology, power envelope, contractual access, and software stack. That means spot price alone hides constraints such as cluster contiguity, interconnect bandwidth, utilization, and the ability to keep training or inference workloads saturated.</p>
+                <p><strong>Where value accrues:</strong> The lecture argues that context windows, tool access, evals, and verifiable domains create the strongest learning loops. IDEs, agents, sovereign deployments, and enterprise workflows matter because they expose actions that can be checked, scored, and folded back into post-training.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=O5PfU_uDhS0" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -590,6 +652,14 @@
               <li>Naturalness is not just pronunciation; emotion, timing, speaker identity, latency, and safety controls all matter.</li>
               <li>The business lesson is to combine product-led growth with enterprise deployment, pricing around customer value instead of raw usage.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Architecture shift:</strong> ElevenLabs started from a relatively modular pipeline: text input, language handling, speech generation, and post-processing. The frontier direction is lower-latency voice agents where ASR, dialogue state, translation, emotion control, and TTS have to operate as a continuous conversational system.</p>
+                <p><strong>Modeling problem:</strong> Voice quality is a bundle of acoustic fidelity, speaker identity, prosody, timing, interruption handling, emotion transfer, and controllability. As the use case moves from dubbing to live agents, milliseconds matter: a technically better model can feel worse if turn-taking latency breaks conversation.</p>
+                <p><strong>Deployment constraints:</strong> The lecture spends real time on authentication, misuse detection, consent, watermarking-style controls, enterprise security, and on-device inference. Those constraints push the system away from a single cloud model and toward a portfolio of models with different latency, privacy, and quality tradeoffs.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=vfF011ko89o" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -608,6 +678,14 @@
               <li>Open weights can be a product advantage when customers need customization, inspection, or domain-specific controls.</li>
               <li>Visual intelligence is expanding from image generation to consistent editing, video, audio, computer use, and robotics.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Core technique:</strong> Blattmann explains latent diffusion as an efficiency move: learn a compressed visual latent space with an autoencoder, then run the generative process in that latent space rather than directly over pixels. That reduces training and sampling cost while keeping enough structure for high-quality synthesis.</p>
+                <p><strong>Factory view:</strong> FLUX-style visual systems require more than pretraining. Mid-training shapes capabilities, post-training tunes controllability, distillation trades quality for speed, and customer feedback drives features such as character consistency, image editing, and style transfer. The product stack is therefore an eval and data system as much as a model.</p>
+                <p><strong>Open questions:</strong> The technical frontier is multimodal alignment: images, video, audio, and action must share representations that preserve temporal consistency and enable interaction. The lecture also flags safety filtering, EU compliance, data provenance, and whether explicit 3D representations are necessary or whether generative models can learn enough geometry implicitly.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=CBaLU0dDEY8" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -626,6 +704,14 @@
               <li>The AI factory includes pretraining, post-training, deployment, preference data, human annotation, and security constraints for studios.</li>
               <li>Unified architectures aim to remove handoffs between media tools so creators can iterate through one system.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Trajectory:</strong> Jain connects Luma's early 3D capture work to generative video by focusing on representations that understand scenes across space and time. The strategic pivot was to use internet-scale video as the data source, because video contains motion, physics priors, camera behavior, and human preference signals that static 3D capture alone cannot provide.</p>
+                <p><strong>System loop:</strong> The technical stack is an AI factory: pretraining on broad multimodal data, post-training on preference and task data, deployment instrumentation, human annotation, and reinforcement-style iteration. Professional users add security constraints, rights management, and predictable outputs, so the model has to serve both creative ambiguity and production control.</p>
+                <p><strong>Unified intelligence:</strong> The long-term goal is a transformer-style system that reasons jointly over text, images, video, and audio rather than chaining specialized tools. That reduces workflow friction and lets the model maintain scene continuity, edit intent, and semantic constraints across a whole creative process.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=6nUl_w5W9Wk" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -644,6 +730,14 @@
               <li>AI makes hands-on product builders more valuable because prototyping and iteration loops get cheaper and faster.</li>
               <li>The durable PM skill is judgment: choosing the real customer problem and navigating tradeoffs under ambiguity.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Operating model:</strong> Singhal separates product management by company phase. Before product-market fit, the technical challenge is fast discovery and problem validation. After fit, the challenge becomes coordination, quality, and roadmapping. During hypergrowth, PMs manage scaling surfaces, reliability, and organizational interfaces. In late-stage companies, they have to force reinvention despite legacy process.</p>
+                <p><strong>AI impact:</strong> Generative tools collapse parts of design, prototyping, analytics, and implementation, so information-routing PM work loses leverage. The valuable product person becomes closer to a full-stack builder: someone who can write specs, prototype, interpret user behavior, evaluate model outputs, and make shipping decisions.</p>
+                <p><strong>Technical product judgment:</strong> AI products are probabilistic, so PM judgment includes eval design, failure-mode triage, latency and cost budgets, trust boundaries, and deciding where human review remains necessary. The lecture's practical warning is that middle layers that do not own judgment or implementation will be pressured by AI-native teams.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=BQrJ4lHAjhc" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -662,6 +756,14 @@
               <li>Culture is operational behavior under pressure, not slogans; decisive leadership matters when systems need to change.</li>
               <li>In AI, electricity and compute can be first-order strategy questions alongside product and distribution.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>VC as infrastructure:</strong> Horowitz describes a16z as an engineered system rather than a collection of individual investors. Centralized control plus shared economics made it possible to allocate talent, operating support, corporate relationships, recruiting, and go-to-market help across portfolio companies without every partner optimizing locally.</p>
+                <p><strong>Network effects:</strong> The firm compounds when each new founder, executive, customer, and domain expert increases the value of the network for the next company. In systems terms, the product is not just capital; it is access to repeated interfaces that reduce search costs for hiring, sales, policy, and advice.</p>
+                <p><strong>AI-specific change:</strong> The lecture ties venture strategy to hard infrastructure. Compute access, electricity, regulatory posture, and capital intensity can define AI moats before a traditional software flywheel has time to form. That makes financing structure and infrastructure partnerships more technical than in earlier SaaS cycles.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=B8NvdfssGac" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -680,6 +782,14 @@
               <li>Nuclear is attractive because uptime, carbon profile, safety record, and density match large data center needs.</li>
               <li>The fuel supply chain matters as much as reactors; enrichment capacity is a geopolitical and industrial constraint.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Energy bottleneck:</strong> Nolan frames AI compute as a load-growth problem for the grid. Data centers want dense, reliable, always-on power, and they cannot be planned on the same timeline as fast software iteration. Turbine shortages, transmission constraints, interconnection queues, and permitting become real constraints on model scaling.</p>
+                <p><strong>Nuclear fit:</strong> Nuclear is technically attractive because it provides high-capacity-factor baseload power with low operational carbon emissions and high energy density. For AI campuses, that means less exposure to intermittency and fewer land and transmission constraints than many alternatives, assuming the industrial base can deliver.</p>
+                <p><strong>Fuel-chain detail:</strong> The lecture's most technical point is that reactors are only one layer. Uranium mining, conversion, enrichment, fuel fabrication, and long-term supply contracts determine whether new nuclear capacity can be sovereign and reliable. General Matter's thesis is that enrichment is an underbuilt U.S. choke point for the AI energy stack.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=wisccQYTRQc" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -698,6 +808,14 @@
               <li>Useful metrics must connect to delivered intelligence, not just theoretical flops or model utilization percentages.</li>
               <li>Future generations of systems are designed around inference, agents, and large coordinated swarms, not only pretraining.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Compute reinvention:</strong> Huang argues that AI changes the purpose of computing from executing stored instructions to generating useful tokens, actions, and simulations. That pushes the design target from CPU-centric general execution toward accelerated systems co-designed across GPU, CPU, memory, NVLink, networking, compilers, libraries, and rack-scale thermals.</p>
+                <p><strong>Generational stack:</strong> Hopper is framed around large-scale training, Grace Blackwell around inference and decode, Vera Rubin around agents, and later systems around coordinated swarms. The architectural theme is that inference is not a cheap afterthought; as agents reason, call tools, and generate longer outputs, decode throughput, memory bandwidth, and interconnect efficiency become strategic.</p>
+                <p><strong>Metrics:</strong> Huang pushes against shallow utilization metrics and emphasizes delivered intelligence per watt. In practice that means evaluating the whole system on real workloads: model quality, latency, throughput, energy, networking overhead, compiler maturity, and whether open models can be inspected, localized, and adapted safely.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=tsQB0n0YV3k" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -716,6 +834,14 @@
               <li>Agentic coding lets founders rebuild and test products quickly, but durable advantage still needs evals, workflows, and memory.</li>
               <li>High revenue per employee becomes plausible when software agents absorb repetitive execution and coordination.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Company architecture:</strong> Tan and Hu map agentic primitives onto organizational design. Skills are reusable capabilities, resolvers route tasks, memory preserves state, evals define correctness, and audit layers check whether work is complete. The company becomes a graph of automated capabilities supervised by a small number of high-judgment humans.</p>
+                <p><strong>Engineering loop:</strong> Agentic coding is useful when it is wrapped in harnesses: tests, benchmarks, task decomposition, regression checks, documentation, and deployment review. The lecture's practical message is that vibe alone is insufficient; founders need closed-loop systems where generated work is verified and improved.</p>
+                <p><strong>Economics:</strong> If agents handle implementation, support, analysis, and back-office tasks, the limiting factor moves from headcount to founder taste, distribution, data access, and eval quality. That is why the lecture treats revenue per employee as a more meaningful metric for AI-native companies than traditional team size.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=Lri2LNYtERM" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -734,6 +860,14 @@
               <li>Large synchronous training jobs make reliability and balance central because a single weak subsystem can stall the whole run.</li>
               <li>Lead times for land, power contracts, utilities, and hardware mean AI infrastructure strategy must be planned years ahead.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Value metric:</strong> Vahdat argues that gigawatts and flops are intermediate variables. The real metric is value per gigawatt: useful model capability delivered to paying customers and daily users. That forces infrastructure teams to optimize the entire chain from power and hardware to scheduling, reliability, software efficiency, and product demand.</p>
+                <p><strong>Reliability and balance:</strong> Large synchronous training jobs create correlated failure risk: one node, link, or storage bottleneck can pause the whole run. The lecture links this to Amdahl-style balance, where compute must be matched by memory, I/O, networking, and orchestration. Underbuilding any layer wastes the expensive accelerator layer.</p>
+                <p><strong>TPU system design:</strong> Google's approach includes tightly designed TPU pods, optical circuit switching, topology management, fleet scheduling, and long-range procurement. The key technical point is that planetary-scale AI clusters are closer to custom supercomputers than generic cloud capacity, with multi-year constraints around land, utilities, chips, and operations.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=VeTqsCpcDgg" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
@@ -752,6 +886,14 @@
               <li>Modern risk has moved from simple data loss toward operational resilience, platform trust, and AI-amplified attack surfaces.</li>
               <li>Leadership requires surviving ambiguity while keeping the organization honest about what happened and what it will change.</li>
             </ul>
+            <details class="technical">
+              <summary>Open technical summary</summary>
+              <div class="technical-body">
+                <p><strong>Incident systems:</strong> Sullivan's technical lesson is that security incidents are socio-technical workflows. Detection, legal review, executive approval, regulator obligations, evidence preservation, bug bounty process, and public disclosure all interact. If those interfaces are informal, the same technical event can later be reconstructed as negligence or concealment.</p>
+                <p><strong>Risk model shift:</strong> The lecture moves beyond confidentiality breaches toward operational resilience: ransomware, service outages, supply-chain compromise, AI-generated exploit code, unsafe automation, and attacks on critical workflows. That makes incident readiness, tabletop exercises, logging, blast-radius reduction, and public communication part of the technical system.</p>
+                <p><strong>Leadership mechanics:</strong> Transparency is framed as a control mechanism. Writing down facts early, escalating across functions, publishing clear postmortems, and making remediation measurable reduce both engineering risk and legal ambiguity. The more autonomous AI systems become, the more important these accountability loops become.</p>
+              </div>
+            </details>
             <a class="watch" href="https://www.youtube.com/watch?v=g50FHC-PzK8" rel="noopener" target="_blank">Watch on YouTube</a>
           </div>
         </article>
