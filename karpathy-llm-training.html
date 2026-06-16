@@ -1,0 +1,1403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A technical course summary of Andrej Karpathy's YouTube lectures on LLM tokenization, pretraining, GPT architecture, GPT-2 reproduction, and post-training.">
+  <title>LLM Training From Karpathy's Lectures</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5e6a73;
+      --line: #d9e0e6;
+      --paper: #fbfcfd;
+      --band: #eef4f1;
+      --panel: #ffffff;
+      --blue: #1f6feb;
+      --green: #25735f;
+      --red: #a83b3b;
+      --amber: #9a6a16;
+      --violet: #684aa8;
+      --code: #102033;
+      --code-bg: #eef2f5;
+      --shadow: 0 12px 34px rgba(23, 32, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.58;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 253, 0.94);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 58px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 210px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-links::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-links a {
+      white-space: nowrap;
+      border-radius: 6px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 650;
+      padding: 8px 10px;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      background: var(--band);
+    }
+
+    .hero {
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(18, 35, 51, 0.78), rgba(18, 35, 51, 0.48) 48%, rgba(18, 35, 51, 0.14)),
+        url("https://img.youtube.com/vi/l8pRSuU81PU/maxresdefault.jpg") center / cover no-repeat;
+      color: #fff;
+    }
+
+    .hero-inner {
+      width: min(1180px, calc(100% - 32px));
+      min-height: clamp(520px, 72vh, 760px);
+      margin: 0 auto;
+      display: grid;
+      align-content: center;
+      padding: 72px 0 56px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin: 0 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      max-width: 840px;
+      margin: 0;
+      color: #fff;
+      font-size: clamp(44px, 7vw, 86px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero .lede {
+      max-width: 760px;
+      margin: 22px 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: clamp(18px, 2.2vw, 24px);
+      line-height: 1.42;
+      letter-spacing: 0;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .hero-meta span {
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 7px 11px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    section {
+      padding: 52px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.46fr) minmax(0, 1fr);
+      gap: 36px;
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2,
+    h3,
+    h4 {
+      letter-spacing: 0;
+      line-height: 1.18;
+    }
+
+    h2 {
+      margin: 8px 0 0;
+      font-size: clamp(28px, 4vw, 46px);
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .section-intro {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .card.compact .card-body {
+      padding: 16px;
+    }
+
+    .card p,
+    .note p,
+    .callout p {
+      color: var(--muted);
+    }
+
+    .thumb {
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      object-fit: cover;
+      background: #c9d1d9;
+    }
+
+    .video-card h3 {
+      min-height: 54px;
+      font-size: 18px;
+    }
+
+    .video-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 0;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f6f8fa;
+      padding: 3px 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .track {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 160px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px 14px 16px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .step:nth-child(2)::before {
+      background: var(--green);
+    }
+
+    .step:nth-child(3)::before {
+      background: var(--amber);
+    }
+
+    .step:nth-child(4)::before {
+      background: var(--blue);
+    }
+
+    .step:nth-child(5)::before {
+      background: var(--red);
+    }
+
+    .step h3 {
+      margin-bottom: 6px;
+      font-size: 17px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .diagram {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 18px;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pipe-box {
+      min-height: 86px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 13px;
+      background: #f7faf9;
+    }
+
+    .pipe-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    .pipe-box span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .arch-row {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #f7faf9;
+      padding: 12px 14px;
+    }
+
+    .arch-row.core {
+      border-color: rgba(37, 115, 95, 0.38);
+      background: #edf7f3;
+    }
+
+    .arch-row.compute {
+      border-color: rgba(31, 111, 235, 0.3);
+      background: #eef5ff;
+    }
+
+    .arch-row output {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .formula {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--code-bg);
+      padding: 16px;
+      color: var(--code);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 14px 0 0;
+      border-radius: 8px;
+      background: #101820;
+      color: #edf5f2;
+      padding: 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.94em;
+    }
+
+    :not(pre) > code {
+      border-radius: 5px;
+      background: var(--code-bg);
+      padding: 2px 5px;
+      color: var(--code);
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 1.15rem;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .note,
+    .callout {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: var(--panel);
+    }
+
+    .callout {
+      border-left: 5px solid var(--green);
+    }
+
+    .warning {
+      border-left-color: var(--red);
+    }
+
+    .module {
+      display: grid;
+      grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+      gap: 24px;
+      padding: 26px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .module:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .module-number {
+      color: var(--green);
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .module h3 {
+      margin-bottom: 8px;
+      font-size: clamp(22px, 3vw, 30px);
+    }
+
+    .module-content {
+      display: grid;
+      gap: 16px;
+    }
+
+    .dense-list {
+      columns: 2;
+      column-gap: 28px;
+    }
+
+    .dense-list li {
+      break-inside: avoid;
+      margin-bottom: 8px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f4f7f8;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 14px 16px;
+    }
+
+    .source-list span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 30px 0 48px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footer-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    @media (max-width: 980px) {
+      .section-head,
+      .module {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .grid.three,
+      .grid.four,
+      .track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        display: none;
+      }
+
+      .dense-list {
+        columns: 1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .nav {
+        min-height: auto;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 12px 0;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .nav-links {
+        width: 100%;
+      }
+
+      .hero-inner {
+        min-height: min(500px, 68svh);
+        padding: 42px 0 36px;
+      }
+
+      .hero h1 {
+        font-size: clamp(36px, 11vw, 44px);
+        line-height: 1.02;
+      }
+
+      .hero .lede {
+        margin-top: 16px;
+        font-size: 16px;
+        line-height: 1.38;
+      }
+
+      .hero-meta {
+        gap: 6px;
+        margin-top: 18px;
+      }
+
+      .hero-meta span {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+
+      section {
+        padding: 40px 0;
+      }
+
+      .grid.two,
+      .grid.three,
+      .grid.four,
+      .track {
+        grid-template-columns: 1fr;
+      }
+
+      .video-card h3 {
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="#top">
+        LLM Training
+        <span>Karpathy lecture course</span>
+      </a>
+      <div class="nav-links">
+        <a href="#map">Map</a>
+        <a href="#sources">Lectures</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#modules">Course</a>
+        <a href="#labs">Labs</a>
+        <a href="#references">Sources</a>
+      </div>
+    </nav>
+  </header>
+
+  <div id="top" class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Transcript-derived technical summary</p>
+      <h1>LLM Training From Karpathy's Lectures</h1>
+      <p class="lede">
+        A course-style condensation of Andrej Karpathy's YouTube lectures on tokenization,
+        decoder-only Transformers, next-token pretraining, GPT-2 reproduction, and the
+        post-training steps that turn a base model into a usable assistant.
+      </p>
+      <div class="hero-meta" aria-label="Course statistics">
+        <span>5 lectures</span>
+        <span>12.7 hours of transcript</span>
+        <span>142k transcript words</span>
+        <span>Updated June 16, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section id="map">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Course Map</div>
+          <h2>What is actually done when training an LLM</h2>
+        </div>
+        <p class="section-intro">
+          The lectures reduce modern LLMs to a concrete pipeline: collect text, convert it
+          into tokens, train a decoder-only Transformer to predict the next token, scale the
+          optimization, evaluate it, then post-train it into an assistant.
+        </p>
+      </div>
+
+      <div class="track" aria-label="LLM training stages">
+        <article class="step">
+          <h3>Data</h3>
+          <p>Build a large document corpus, filter it, deduplicate it, and split it into train and validation shards.</p>
+        </article>
+        <article class="step">
+          <h3>Tokens</h3>
+          <p>Encode text into integer IDs using a tokenizer, commonly byte-level BPE or a related subword method.</p>
+        </article>
+        <article class="step">
+          <h3>Model</h3>
+          <p>Use token embeddings, positional information, causal self-attention, MLPs, residuals, and layer norms.</p>
+        </article>
+        <article class="step">
+          <h3>Optimize</h3>
+          <p>Minimize next-token cross entropy with AdamW, schedules, mixed precision, and distributed training.</p>
+        </article>
+        <article class="step">
+          <h3>Align</h3>
+          <p>Continue training on conversation, preference, or verifiable task data so the model behaves like an assistant.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="sources">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Lecture Set</div>
+          <h2>The transcripts used</h2>
+        </div>
+        <p class="section-intro">
+          I used the auto-generated English transcript tracks for the lectures below and
+          corrected obvious speech-to-text artifacts in the notes. The course is paraphrased;
+          it does not reproduce the transcript text.
+        </p>
+      </div>
+
+      <div class="grid three">
+        <article class="card video-card">
+          <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank" rel="noreferrer">
+            <img class="thumb" src="https://img.youtube.com/vi/kCc8FmEb1nY/hqdefault.jpg" alt="YouTube thumbnail for Let's build GPT">
+          </a>
+          <div class="card-body">
+            <h3>Let's build GPT: from scratch, in code, spelled out.</h3>
+            <p>Character-level GPT implementation that builds up batching, loss, attention, Transformer blocks, generation, and the bridge to nanoGPT.</p>
+            <div class="video-meta">
+              <span class="tag">116 min</span>
+              <span class="tag">21k words</span>
+              <span class="tag">architecture</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card video-card">
+          <a href="https://www.youtube.com/watch?v=zduSFxRajkE" target="_blank" rel="noreferrer">
+            <img class="thumb" src="https://img.youtube.com/vi/zduSFxRajkE/hqdefault.jpg" alt="YouTube thumbnail for Let's build the GPT Tokenizer">
+          </a>
+          <div class="card-body">
+            <h3>Let's build the GPT Tokenizer</h3>
+            <p>Byte-level BPE from first principles, why tokenizer choices affect arithmetic, code, multilingual text, special tokens, and prompting.</p>
+            <div class="video-meta">
+              <span class="tag">134 min</span>
+              <span class="tag">25k words</span>
+              <span class="tag">tokenization</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card video-card">
+          <a href="https://www.youtube.com/watch?v=l8pRSuU81PU" target="_blank" rel="noreferrer">
+            <img class="thumb" src="https://img.youtube.com/vi/l8pRSuU81PU/hqdefault.jpg" alt="YouTube thumbnail for Let's reproduce GPT-2">
+          </a>
+          <div class="card-body">
+            <h3>Let's reproduce GPT-2 (124M)</h3>
+            <p>Full pretraining run: GPT-2 architecture, weight loading, data loading, optimizer setup, DDP, validation, HellaSwag, and checkpoints.</p>
+            <div class="video-meta">
+              <span class="tag">242 min</span>
+              <span class="tag">43k words</span>
+              <span class="tag">training</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card video-card">
+          <a href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank" rel="noreferrer">
+            <img class="thumb" src="https://img.youtube.com/vi/zjkBMFhNj_g/hqdefault.jpg" alt="YouTube thumbnail for Intro to Large Language Models">
+          </a>
+          <div class="card-body">
+            <h3>[1hr Talk] Intro to Large Language Models</h3>
+            <p>Conceptual overview of pretraining, tokenization, next-token prediction, base models, supervised fine-tuning, and RLHF.</p>
+            <div class="video-meta">
+              <span class="tag">60 min</span>
+              <span class="tag">12k words</span>
+              <span class="tag">overview</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card video-card">
+          <a href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank" rel="noreferrer">
+            <img class="thumb" src="https://img.youtube.com/vi/7xTGNNLPyMI/hqdefault.jpg" alt="YouTube thumbnail for Deep Dive into LLMs like ChatGPT">
+          </a>
+          <div class="card-body">
+            <h3>Deep Dive into LLMs like ChatGPT</h3>
+            <p>End-to-end explanation of data curation, token prediction, model internals, assistant training, reasoning models, and use limits.</p>
+            <div class="video-meta">
+              <span class="tag">211 min</span>
+              <span class="tag">41k words</span>
+              <span class="tag">post-training</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Core Idea</div>
+          <h2>The LLM pipeline in one pass</h2>
+        </div>
+        <p class="section-intro">
+          A base LLM is not hand-written. It is a large differentiable program whose
+          parameters are tuned until its next-token probabilities match a massive text
+          distribution. Assistant behavior is layered on later.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <div class="diagram">
+          <h3>Training data flow</h3>
+          <div class="pipeline">
+            <div class="pipe-box">
+              <strong>Documents</strong>
+              <span>HTML, books, code, papers, forums, filtered web text.</span>
+            </div>
+            <div class="arrow">-&gt;</div>
+            <div class="pipe-box">
+              <strong>Token stream</strong>
+              <span>Integer IDs such as 15339, 1917, 220, with document separators.</span>
+            </div>
+            <div class="arrow">-&gt;</div>
+            <div class="pipe-box">
+              <strong>Batches</strong>
+              <span>Windows shaped B x T, each position predicting the next token.</span>
+            </div>
+          </div>
+          <div class="formula" aria-label="Next token objective">
+loss = mean_t -log p_theta(token[t+1] | token[0:t])
+logits shape = batch_size x context_length x vocab_size
+          </div>
+        </div>
+
+        <div class="diagram">
+          <h3>Decoder-only Transformer</h3>
+          <div class="architecture" aria-label="Transformer architecture">
+            <div class="arch-row"><strong>Token IDs + position IDs</strong><output>Lookup tables produce dense vectors.</output></div>
+            <div class="arch-row core"><strong>Residual stream</strong><output>The model refines one vector per token through many blocks.</output></div>
+            <div class="arch-row compute"><strong>LayerNorm -> causal self-attention -> residual add</strong><output>Tokens read only earlier tokens through a triangular mask.</output></div>
+            <div class="arch-row compute"><strong>LayerNorm -> MLP/GELU -> residual add</strong><output>Each token computes locally after communication.</output></div>
+            <div class="arch-row"><strong>Final LayerNorm + LM head</strong><output>Project each token vector to vocabulary logits.</output></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Course Notes</div>
+          <h2>Technical summary by module</h2>
+        </div>
+        <p class="section-intro">
+          These modules are ordered as an implementation path: start with text and end with
+          a trained base model, then layer on the extra data and objectives used for chat.
+        </p>
+      </div>
+
+      <article class="module">
+        <div class="module-number">Module 01</div>
+        <div class="module-content">
+          <div>
+            <h3>Text becomes tokens before it becomes tensors</h3>
+            <p>
+              The model never sees characters, words, or web pages directly. It sees a
+              sequence of token IDs. A tokenizer chooses the atoms of the sequence and
+              therefore controls the effective context length, vocabulary size, and many
+              failure modes.
+            </p>
+          </div>
+          <div class="grid two">
+            <div class="note">
+              <h4>Byte-level BPE</h4>
+              <p>
+                Start from UTF-8 bytes, so every text string can be represented. Repeatedly
+                find the most frequent adjacent pair and mint a new token for that pair.
+                The merge table is the tokenizer training result.
+              </p>
+            </div>
+            <div class="note">
+              <h4>Vocabulary tradeoff</h4>
+              <p>
+                A larger vocabulary shortens sequences but makes the embedding table and
+                final softmax wider. GPT-2 used 50,257 tokens; later tokenizers often use
+                larger vocabularies and handle code whitespace more efficiently.
+              </p>
+            </div>
+          </div>
+          <pre><code># BPE training sketch
+tokens = utf8_bytes(text)             # IDs 0..255
+merges = []
+while vocab_size &lt; target_vocab_size:
+    pair = most_frequent_adjacent_pair(tokens)
+    new_id = next_id()
+    tokens = replace_pair(tokens, pair, new_id)
+    merges.append((pair, new_id))</code></pre>
+          <div class="callout warning">
+            <h4>Why this matters</h4>
+            <p>
+              Tokenization explains surprising behavior: spelling and reversing strings are
+              awkward because the model sees chunks, not letters; arithmetic is awkward
+              because digits are grouped inconsistently; non-English text may consume more
+              tokens; code improves when indentation and syntax tokenize densely; special
+              tokens and partial tokens can become API edge cases.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 02</div>
+        <div class="module-content">
+          <div>
+            <h3>The dataset is a product, not a folder of text</h3>
+            <p>
+              Karpathy frames pretraining as knowledge acquisition from text. The hard part
+              before optimization is building a high-quality sequence: crawl, extract, filter,
+              deduplicate, remove undesirable content, remove obvious PII, classify languages,
+              tokenize, shard, and hold out validation data.
+            </p>
+          </div>
+          <ul class="dense-list">
+            <li>Common Crawl-like web data is noisy HTML; text extraction is a major preprocessing step.</li>
+            <li>URL and domain filters remove spam, malware, adult content, and low-value pages.</li>
+            <li>Language filters decide whether the model is English-heavy or multilingual.</li>
+            <li>Deduplication prevents repeated pages from wasting capacity and contaminating evaluation.</li>
+            <li>Documents are often concatenated with an end-of-text separator token.</li>
+            <li>Training shards must be shuffled carefully; repeated document order can show up in loss curves.</li>
+          </ul>
+          <div class="callout">
+            <h4>Technical consequence</h4>
+            <p>
+              If two models have the same architecture and token budget, the one trained on
+              cleaner, denser, better-deduplicated data can win. This is why a modern
+              reproduction can look surprisingly strong against an older GPT-2 checkpoint
+              even with fewer tokens.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 03</div>
+        <div class="module-content">
+          <div>
+            <h3>Next-token prediction supplies the labels for free</h3>
+            <p>
+              A raw token stream contains its own supervised dataset. For a window of length
+              T+1, the first T tokens are inputs and the next T shifted tokens are targets.
+              Every position in the window is a training example.
+            </p>
+          </div>
+          <pre><code># Batch construction sketch
+ix = random_offsets(batch_size)
+x = stack(token_stream[i : i + T] for i in ix)
+y = stack(token_stream[i + 1 : i + T + 1] for i in ix)
+
+logits = model(x)                     # B x T x V
+loss = cross_entropy(logits, y)       # average over B*T positions</code></pre>
+          <div class="grid three">
+            <div class="note">
+              <h4>Teacher forcing</h4>
+              <p>The model is trained on real previous tokens, not its own generated tokens.</p>
+            </div>
+            <div class="note">
+              <h4>Validation loss</h4>
+              <p>A held-out token stream estimates whether the model learned general structure or memorized.</p>
+            </div>
+            <div class="note">
+              <h4>Generation</h4>
+              <p>At inference, sample one token, append it, crop to the context window, and repeat.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 04</div>
+        <div class="module-content">
+          <div>
+            <h3>The GPT block alternates communication and computation</h3>
+            <p>
+              In Karpathy's implementation, attention is where tokens exchange information;
+              the MLP is where each token transforms its own representation. Residual
+              connections keep a clean path for gradients, and pre-layer normalization makes
+              deep training more stable.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>What it does</th>
+                  <th>Implementation detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Token embedding</td>
+                  <td>Maps token IDs to vectors.</td>
+                  <td>Lookup table shaped vocab_size x n_embd.</td>
+                </tr>
+                <tr>
+                  <td>Position embedding</td>
+                  <td>Gives order information to otherwise permutation-blind attention.</td>
+                  <td>GPT-2 learns absolute position embeddings up to context length.</td>
+                </tr>
+                <tr>
+                  <td>Causal self-attention</td>
+                  <td>Lets each position read earlier positions.</td>
+                  <td>Q, K, V projections, scaled dot products, triangular mask, softmax, weighted value sum.</td>
+                </tr>
+                <tr>
+                  <td>Multi-head attention</td>
+                  <td>Runs several attention channels in parallel.</td>
+                  <td>Heads are concatenated then projected back to the residual width.</td>
+                </tr>
+                <tr>
+                  <td>MLP</td>
+                  <td>Applies per-token computation after communication.</td>
+                  <td>Usually expands to 4x width, applies GELU, then projects back.</td>
+                </tr>
+                <tr>
+                  <td>LM head</td>
+                  <td>Converts hidden states to logits over the vocabulary.</td>
+                  <td>Often tied to token embedding weights in GPT-style models.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="formula">
+attention(Q, K, V) = softmax((Q K^T) / sqrt(head_dim) + causal_mask) V
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 05</div>
+        <div class="module-content">
+          <div>
+            <h3>The training loop is mostly engineering discipline</h3>
+            <p>
+              Once the model and loss exist, most work is making optimization correct,
+              stable, and fast. Karpathy's GPT-2 reproduction steadily adds the production
+              details missing from the toy notebook.
+            </p>
+          </div>
+          <div class="grid two">
+            <div class="note">
+              <h4>Optimization mechanics</h4>
+              <ul>
+                <li>Use AdamW with decoupled weight decay.</li>
+                <li>Decay only matrix weights, not biases and layer norm parameters.</li>
+                <li>Warm up the learning rate, then decay it, commonly with cosine decay.</li>
+                <li>Clip gradients when needed to avoid unstable spikes.</li>
+                <li>Accumulate gradients to simulate a larger token batch than fits in memory.</li>
+              </ul>
+            </div>
+            <div class="note">
+              <h4>Systems mechanics</h4>
+              <ul>
+                <li>Use bf16 or fp16 compute while keeping numerically sensitive parts stable.</li>
+                <li>Enable TensorFloat-32 or fast matmul modes where appropriate.</li>
+                <li>Use fused kernels, FlashAttention, and torch.compile when they are correct.</li>
+                <li>Use Distributed Data Parallel across GPUs, one process per GPU.</li>
+                <li>Log train loss, validation loss, samples, eval scores, and checkpoint state.</li>
+              </ul>
+            </div>
+          </div>
+          <pre><code># One training step
+with autocast(dtype=bfloat16):
+    logits = model(x)
+    loss = cross_entropy(logits, y) / grad_accum_steps
+
+loss.backward()
+if micro_step_is_last:
+    clip_grad_norm_(model.parameters(), max_norm)
+    optimizer.step()
+    scheduler.step()
+    optimizer.zero_grad(set_to_none=True)</code></pre>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 06</div>
+        <div class="module-content">
+          <div>
+            <h3>GPT-2 reproduction gives concrete dimensions</h3>
+            <p>
+              The GPT-2 124M lecture turns the abstract GPT recipe into a specific target:
+              load the released GPT-2 weights, implement an equivalent PyTorch module, verify
+              that weight names and shapes match, then initialize from scratch and train.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>GPT-2 124M setting</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Layers</td>
+                  <td>12 Transformer blocks</td>
+                  <td>Depth controls repeated communication and computation.</td>
+                </tr>
+                <tr>
+                  <td>Embedding width</td>
+                  <td>768 channels</td>
+                  <td>Width controls representation size and matrix dimensions.</td>
+                </tr>
+                <tr>
+                  <td>Heads</td>
+                  <td>12 attention heads</td>
+                  <td>Each head is 64-dimensional when n_embd is 768.</td>
+                </tr>
+                <tr>
+                  <td>Vocabulary</td>
+                  <td>50,257 GPT-2 BPE tokens</td>
+                  <td>Determines embedding rows and final softmax classes.</td>
+                </tr>
+                <tr>
+                  <td>Context</td>
+                  <td>1,024 tokens</td>
+                  <td>Maximum prefix length seen by the model during pretraining.</td>
+                </tr>
+                <tr>
+                  <td>Objective</td>
+                  <td>Next-token cross entropy</td>
+                  <td>The same basic objective used in the small Shakespeare GPT.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warning">
+            <h4>Evaluation caveat</h4>
+            <p>
+              Matching or beating GPT-2 on a modern run is not a pure architecture contest.
+              Dataset distribution, data quality, leakage risk, tokenizer details, training
+              schedule, and benchmark age all matter. Treat HellaSwag or validation curves as
+              useful checks, not as final proof of general capability.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 07</div>
+        <div class="module-content">
+          <div>
+            <h3>A base model is a document completer, not an assistant</h3>
+            <p>
+              Pretraining makes a model that continues text from its training distribution.
+              Chat behavior comes from later data and objectives. The model must learn a
+              conversation protocol, when to answer, what tone to use, and when to refuse.
+            </p>
+          </div>
+          <div class="grid three">
+            <div class="card compact">
+              <div class="card-body">
+                <h4>Supervised fine-tuning</h4>
+                <p>Continue training on user/assistant transcripts. Often the loss is focused on assistant tokens so the model learns the response role.</p>
+              </div>
+            </div>
+            <div class="card compact">
+              <div class="card-body">
+                <h4>Preference tuning</h4>
+                <p>Collect rankings or comparisons, train a reward/preference model, and fine-tune outputs toward preferred answers.</p>
+              </div>
+            </div>
+            <div class="card compact">
+              <div class="card-body">
+                <h4>Reasoning RL</h4>
+                <p>For verifiable domains such as math and code, reinforcement learning can improve search-like thinking strategies beyond imitation.</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout">
+            <h4>Mental model</h4>
+            <p>
+              A normal chat model can be thought of as simulating the kind of answer a trained
+              data labeler would write under the lab's instructions. A reasoning model adds
+              an extra learned problem-solving process, especially when answers can be checked.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module-number">Module 08</div>
+        <div class="module-content">
+          <div>
+            <h3>Capability is bounded by compute, context, and evaluation</h3>
+            <p>
+              The lectures repeatedly separate what the model can do from what it reliably
+              does. Larger models trained on more and better tokens usually improve, but
+              failures remain uneven: hallucination, brittle arithmetic, forgotten context,
+              special-token weirdness, and overconfident answers.
+            </p>
+          </div>
+          <div class="grid two">
+            <div class="note">
+              <h4>Where scaling helps</h4>
+              <p>
+                More parameters, more tokens, better data, better optimizers, and faster
+                kernels can reduce loss and unlock downstream behavior. The GPT-2 reproduction
+                shows the same code path can scale from a toy character model to a real 124M
+                checkpoint.
+              </p>
+            </div>
+            <div class="note">
+              <h4>Where scaling is not enough</h4>
+              <p>
+                Context is finite, models do not update their weights at test time, tokenizers
+                create awkward blind spots, and benchmarks can be contaminated or gamed. Use
+                models as tools with verification, not as sources of guaranteed truth.
+              </p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="labs">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Practice Path</div>
+          <h2>Labs that match the lectures</h2>
+        </div>
+        <p class="section-intro">
+          These exercises are sequenced so each one produces a tangible artifact before
+          moving to the next layer of complexity.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <article class="card compact">
+          <div class="card-body">
+            <h3>1. Train a character GPT</h3>
+            <p>Use Tiny Shakespeare, a 65-character vocabulary, B x T batches, and a small decoder-only Transformer. Confirm loss drops and generation becomes Shakespeare-like.</p>
+          </div>
+        </article>
+        <article class="card compact">
+          <div class="card-body">
+            <h3>2. Build a BPE tokenizer</h3>
+            <p>Train byte-level merges on a small corpus, implement encode/decode, then compare token counts for English, code, numbers, and non-English text.</p>
+          </div>
+        </article>
+        <article class="card compact">
+          <div class="card-body">
+            <h3>3. Match GPT-2 shapes</h3>
+            <p>Implement a GPT-2 compatible module and inspect the state dict: token embeddings, position embeddings, attention projections, MLP weights, layer norms, and LM head.</p>
+          </div>
+        </article>
+        <article class="card compact">
+          <div class="card-body">
+            <h3>4. Train a real token model</h3>
+            <p>Use the GPT-2 tokenizer, pack documents with end-of-text separators, train on shards, and monitor validation loss and generated samples.</p>
+          </div>
+        </article>
+        <article class="card compact">
+          <div class="card-body">
+            <h3>5. Scale the run</h3>
+            <p>Add gradient accumulation, AdamW parameter grouping, learning-rate warmup and decay, mixed precision, FlashAttention, and DDP.</p>
+          </div>
+        </article>
+        <article class="card compact">
+          <div class="card-body">
+            <h3>6. Post-train a chat variant</h3>
+            <p>Convert conversations to a chat template, train on assistant completions, then evaluate whether the model follows the user/assistant protocol.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="references">
+      <div class="section-head">
+        <div>
+          <div class="kicker">Sources</div>
+          <h2>Original material and code</h2>
+        </div>
+        <p class="section-intro">
+          The videos are the primary source. The GitHub repositories provide the runnable
+          code context Karpathy references across the lectures.
+        </p>
+      </div>
+
+      <ul class="source-list">
+        <li>
+          <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY" target="_blank" rel="noreferrer">Let's build GPT: from scratch, in code, spelled out.</a>
+          <span>Used for batching, next-token loss, attention, Transformer blocks, and generation.</span>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/watch?v=zduSFxRajkE" target="_blank" rel="noreferrer">Let's build the GPT Tokenizer</a>
+          <span>Used for Unicode, UTF-8, byte-level BPE, special tokens, and tokenizer pathologies.</span>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/watch?v=l8pRSuU81PU" target="_blank" rel="noreferrer">Let's reproduce GPT-2 (124M)</a>
+          <span>Used for GPT-2 dimensions, optimizer setup, data loading, DDP, validation, and evaluation notes.</span>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank" rel="noreferrer">[1hr Talk] Intro to Large Language Models</a>
+          <span>Used for the high-level pretraining, SFT, RLHF, and base-model mental model.</span>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank" rel="noreferrer">Deep Dive into LLMs like ChatGPT</a>
+          <span>Used for the end-to-end pipeline from data curation to assistant behavior and reasoning models.</span>
+        </li>
+        <li>
+          <a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noreferrer">karpathy/nanoGPT</a>
+          <span>Reference implementation for simple GPT training and GPT-2 style reproduction.</span>
+        </li>
+        <li>
+          <a href="https://github.com/karpathy/minbpe" target="_blank" rel="noreferrer">karpathy/minbpe</a>
+          <span>Minimal BPE tokenizer code aligned with the tokenizer lecture.</span>
+        </li>
+        <li>
+          <a href="https://github.com/karpathy/llm.c" target="_blank" rel="noreferrer">karpathy/llm.c</a>
+          <span>C/CUDA implementation context for faster GPT training.</span>
+        </li>
+        <li>
+          <a href="https://github.com/karpathy/nanochat" target="_blank" rel="noreferrer">karpathy/nanochat</a>
+          <span>Current experimental harness for tokenization, pretraining, fine-tuning, evaluation, inference, and chat UI.</span>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>
+        Transcript notes compiled June 16, 2026. This page is a technical study guide and
+        paraphrase of the linked lectures, not an official Karpathy/Eureka Labs resource.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
